@@ -55,7 +55,7 @@ def predict():
         return jsonify({'error': 'No image uploaded'}), 400
     try:
         file = request.files['file']
-        image = Image.open(io.BytesIO(file.read()))
+        image = Image.open(io.BytesIO(file.read())).convert("RGB")
         processed = preprocess_image(image)
 
         # Predict
@@ -68,7 +68,7 @@ def predict():
         # ✅ Grad-CAM
         img_cv2 = cv2.cvtColor(np.array(image.resize((224, 224))), cv2.COLOR_RGB2BGR)
         img_array = np.expand_dims(img_cv2[..., ::-1] / 255.0, axis=0)
-        heatmap = grad_cam(model, img_array, "block5_conv2")  # NOTE: Update to actual layer name if different
+        heatmap = grad_cam(model, img_array, "block5_conv2")
         heatmap = cv2.resize(heatmap, (224, 224))
         heatmap = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
         superimposed_img = cv2.addWeighted(np.uint8(img_cv2), 0.6, heatmap, 0.4, 0)

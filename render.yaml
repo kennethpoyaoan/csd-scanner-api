@@ -2,9 +2,21 @@ services:
   - type: web
     name: csd-scanner-api
     env: python
-    plan: free
+    region: oregon # or change to your preferred region
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app
+    plan: free
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
       - key: PORT
-        value: 5000
+        value: 10000 # Render will override this if needed
+    autoDeploy: true
+    runtime: python3
+    buildFilter:
+      paths:
+        - app.py
+        - requirements.txt
+        - model/*
+        - render.yaml
+        - images/
